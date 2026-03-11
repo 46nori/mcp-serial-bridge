@@ -1,0 +1,9 @@
+{
+  "servers": {
+    "serial-bridge": {
+      "type": "stdio",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": ["${workspaceFolder}/src/server.py"]
+    }
+  }
+}
