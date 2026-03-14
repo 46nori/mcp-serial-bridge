@@ -2,7 +2,8 @@
   "servers": {
     "serial-bridge": {
       "type": "stdio",
-      "command": "${workspaceFolder}/.venv/bin/python",
+      "command": "${workspaceFolder}/.venv/bin/python",          // macOS, Linux
+      //"command": "${workspaceFolder}/.venv/Scripts/python.exe",  // Windows
       "args": ["${workspaceFolder}/src/server.py"]
     }
   }

@@ -24,9 +24,30 @@ cd mcp-serial-bridge
 
 ### uv を使う場合（推奨）
 
+macOS / Linux:
+
 ```bash
 # uv のインストール（未インストールの場合）
 curl -LsSf https://astral.sh/uv/install.sh | sh
+```
+
+Windows (PowerShell):
+
+> VSCode の統合ターミナルからそのまま実行できます。外部の PowerShell を使っても問題ありません。
+
+```powershell
+# uv のインストール（未インストールの場合）
+powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+```
+
+> **Windows での注意**: `uv` のインストール直後は、現在開いている PowerShell では `uv` コマンドが認識されないことがあります。
+> その場合は VSCode の統合ターミナルを一度閉じて開き直すか、VSCode を再起動してから続行してください。
+
+どちらの環境でも、インストール後は新しいシェルを開き直してから以下を実行してください。
+
+```bash
+# uv が使えることを確認
+uv --version
 
 # 依存パッケージのインストールと仮想環境の作成
 uv sync
@@ -36,12 +57,21 @@ uv sync
 
 uv が使えない環境では標準の venv も利用できます。
 
+macOS / Linux:
+
 ```bash
 python3 -m venv .venv
 .venv/bin/pip install "mcp[cli]>=1.9.0" "pyserial>=3.5"
 ```
 
-> どちらの方法でも仮想環境は `.venv/` に作成されるため、VSCode の設定変更は不要です。
+Windows (PowerShell):
+
+```powershell
+py -3 -m venv .venv
+.\.venv\Scripts\pip install "mcp[cli]>=1.9.0" "pyserial>=3.5"
+```
+
+> どちらの方法でも仮想環境は `.venv/` に作成されます。
 
 Linux でシリアルポートへのアクセス権がない場合は、ユーザーを `dialout` グループに追加してください。
 
@@ -52,7 +82,10 @@ sudo usermod -aG dialout $USER
 
 ## サーバーの起動
 
-`.vscode/mcp.json` はリポジトリに含まれているため、追加設定は不要です。
+`.vscode/mcp.json` はリポジトリに含まれています。
+macOS / Linux ではそのまま利用できます。
+Windows では Python の実行ファイルの場所が異なるため、`command` を `.venv/Scripts/python.exe` に変更してください。
+
 コマンドパレット（`Cmd+Shift+P` / `Ctrl+Shift+P`）から **MCP: Restart Server** を実行すると `serial-bridge` が利用可能になります。
 
 設定ファイルの詳細は[技術詳細](#vscode-mcp-設定ファイル)を参照してください。
@@ -245,7 +278,9 @@ tail -f logs/rx_stream.log | tee logs/session_$(date +%H%M%S).log
 
 ### VSCode MCP 設定ファイル
 
-`.vscode/mcp.json` はリポジトリに含まれており、VSCode が自動で読み込みます。`${workspaceFolder}` 変数は VSCode が実行時に展開するため、手動での編集は不要です。
+`.vscode/mcp.json` はリポジトリに含まれており、VSCode が自動で読み込みます。`${workspaceFolder}` 変数は VSCode が実行時に展開するため、手動でのパス展開は不要です。
+
+**macOS / Linux:**
 
 ```json
 {
@@ -259,7 +294,21 @@ tail -f logs/rx_stream.log | tee logs/session_$(date +%H%M%S).log
 }
 ```
 
-> **Windows ユーザーへ**: Python の実行ファイルは `.venv\Scripts\python.exe` にあるため、`command` を `"${workspaceFolder}/.venv/Scripts/python.exe"` に変更してください。
+**Windows:**
+
+```json
+{
+  "servers": {
+    "serial-bridge": {
+      "type": "stdio",
+      "command": "${workspaceFolder}/.venv/Scripts/python.exe",
+      "args": ["${workspaceFolder}/src/server.py"]
+    }
+  }
+}
+```
+
+> Windows で `uv` や `.venv` を作成した直後に反映されない場合は、VSCode の統合ターミナルを開き直すか **MCP: Restart Server** を再実行してください。
 
 ### MCP プロトコル
 
